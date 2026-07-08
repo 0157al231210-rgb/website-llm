@@ -1,0 +1,34 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment Variables
+.env
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build files
+build/
+dist/
+
+# Logs
+*.log
+
+# Generated datasets
+datasets/raw/
+datasets/processed/
+datasets/crawl_index/
+datasets/training/
