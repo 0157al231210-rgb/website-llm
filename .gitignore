@@ -32,3 +32,6 @@ datasets/raw/
 datasets/processed/
 datasets/crawl_index/
 datasets/training/
+
+# Crawl checkpoint
+datasets/crawl_state.json

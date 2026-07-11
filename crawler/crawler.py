@@ -1,3 +1,6 @@
+import signal
+import sys
+
 from downloader import download
 from parser import parse
 from frontier import URLFrontier
@@ -5,8 +8,7 @@ from urllib.parse import urljoin, urlparse
 from saver import save_html, save_json, save_metadata
 from url_utils import normalize_url
 from hasher import content_hash
-
-page_counter = 1
+from state_manager import save_state, load_state
 
 DATASET_NAME = "quotes_dataset"
 
@@ -14,11 +16,19 @@ seed_url ="https://quotes.toscrape.com"
 seed_domain = urlparse(seed_url).netloc
 MAX_DEPTH = 2
 
-frontier = URLFrontier()
-frontier.add(seed_url, 0)
+visited, seen_hashes, frontier, page_counter = load_state()
 
-visited = set()
-seen_hashes = set()
+if frontier.is_empty() and not visited:
+    frontier.add(seed_url, 0)
+    
+def shutdown_handler(signum, frame):
+    print("\nShutdown signal recieved. Saving state and exiting...")
+    save_state(visited, seen_hashes, frontier, page_counter)
+    print("State saved. Exiting.")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, shutdown_handler)
+signal.signal(signal.SIGTERM, shutdown_handler)
 
 while not frontier.is_empty():
     
@@ -54,6 +64,8 @@ while not frontier.is_empty():
     print(f"Saved as page_{page_counter:06d}")
     
     page_counter += 1
+    
+    save_state(visited, seen_hashes, frontier, page_counter)
     
     if depth >= MAX_DEPTH:
             continue
