@@ -28,10 +28,14 @@ dist/
 *.log
 
 # Generated datasets
-datasets/raw/
-datasets/processed/
-datasets/crawl_index/
-datasets/training/
+datasets/
 
-# Crawl checkpoint
-datasets/crawl_state.json
+# Model checkpoints
+checkpoints/
+models/
+
+# TensorBoard
+runs/
+
+# Hugging Face cache
+.cache/
