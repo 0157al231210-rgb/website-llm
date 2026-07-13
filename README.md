@@ -1,5 +1,4 @@
-# Website LLM
-
+# AI Coding Assistant
 An AI Engineering project to build a website generation model from open-source web development data.
 
 ## Project Goal
