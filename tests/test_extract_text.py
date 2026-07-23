@@ -1,11 +1,23 @@
 from extractor.pipeline import extract
 from extractor.text import extract_text
 
-with open("datasets/raw/quotes_dataset/page_000001.html", encoding="utf-8") as f:
-    html = f.read()
 
-tag = extract(html)
+def test_extract_text():
+    """
+    Verify that text extraction returns
+    meaningful content from HTML.
+    """
 
-text = extract_text(tag)
+    with open(
+        "datasets/raw/quotes_dataset/page_000001.html",
+        encoding="utf-8",
+    ) as file:
+        html = file.read()
 
-print(text)
+    tag = extract(html)
+
+    text = extract_text(tag)
+
+    assert isinstance(text, str)
+    assert text.strip() != ""
+    assert len(text) > 100

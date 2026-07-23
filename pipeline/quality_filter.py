@@ -23,7 +23,9 @@ Pipeline Position:
             ↓
     Accepted / Rejected Dataset
 """
-from crawler.hasher import content_hash
+from pipeline.rules.duplicate_rule import DuplicateRule
+from pipeline.rules.base_rule import BaseRule
+
 
 class QualityFilter:
     """
@@ -36,40 +38,34 @@ class QualityFilter:
     def __init__(self):
         """
         Initialize the policy engine.
-
-        The filter keeps track of hashes of previously accepted
-        documents so exact duplicates can be rejected efficiently.
+        
+        Registers the dataset policy rules that will be
+        applied to every processed document.
         """
-        self.seen_hashes = set()
+        self.rules: list[BaseRule] = [
+            DuplicateRule(),
+        ]
 
 
     def evaluate(self, document: dict) -> dict:
         """
-        Evaluate whether a document satisfies dataset policies.
+        Evaluate a processed document using all registered
+        dataset policy rules.
 
-        Args:
-            document: Processed document produced by DatasetPipeline.
-
-        Returns:
-            dict containing:
-                accepted: bool
-                reasons: list[str]
+        Creates the shared policy object, executes every
+        registered rule, and returns the final policy
+        decision.
         """
         
+        
         quality = document["quality"]
-        accepted = quality["passed"]
-        reasons = list(quality["reasons"])
         
-        content_fingerprint = content_hash(document["text"])
-        
-        if accepted and content_fingerprint in self.seen_hashes:
-            accepted = False
-            reasons.append("Duplicate document.")
-        
-        if accepted:
-            self.seen_hashes.add(content_fingerprint)
-        
-        return {
-            "accepted": accepted,
-            "reasons": reasons,
+        policy = {
+            "accepted": quality["passed"],
+            "reasons": list(quality["reasons"]),
         }
+        
+        for rule in self.rules:
+            rule.evaluate(document, policy)
+            
+        return policy

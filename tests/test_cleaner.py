@@ -1,57 +1,70 @@
 from extractor.dom import create_dom, get_all_nodes
 from extractor.cleaner import remove_unwanted_tags
 
-html = """
-<html>
 
-<head>
+def test_remove_unwanted_tags():
+    """
+    Verify that unwanted HTML tags are removed while
+    preserving meaningful content.
+    """
 
-<style>
-body { color:red; }
-</style>
+    html = """
+    <html>
 
-<script>
-alert("Hello");
-</script>
+    <head>
 
-</head>
+    <style>
+    body { color:red; }
+    </style>
 
-<body>
+    <script>
+    alert("Hello");
+    </script>
 
-<nav>
-Home
-About
-</nav>
+    </head>
 
-<main>
+    <body>
 
-<h1>FastAPI</h1>
+    <nav>
+    Home
+    About
+    </nav>
 
-<p>
-FastAPI is a modern Python framework.
-</p>
+    <main>
 
-</main>
+    <h1>FastAPI</h1>
 
-<footer>
-Copyright
-</footer>
+    <p>
+    FastAPI is a modern Python framework.
+    </p>
 
-</body>
+    </main>
 
-</html>
-"""
+    <footer>
+    Copyright
+    </footer>
 
-soup = create_dom(html)
+    </body>
 
-print("Before Cleaning:")
+    </html>
+    """
 
-for tag in get_all_nodes(soup):
-    print(tag.name)
+    soup = create_dom(html)
 
-remove_unwanted_tags(soup)
+    remove_unwanted_tags(soup)
 
-print("\nAfter Cleaning:")
+    tag_names = [
+        tag.name
+        for tag in get_all_nodes(soup)
+    ]
 
-for tag in get_all_nodes(soup):
-    print(tag.name)
+    # Unwanted tags should be removed
+    assert "script" not in tag_names
+    assert "style" not in tag_names
+    assert "nav" not in tag_names
+    assert "footer" not in tag_names
+
+    # Useful tags should remain
+    assert "main" in tag_names
+    assert "h1" in tag_names
+    assert "p" in tag_names

@@ -30,6 +30,9 @@ dist/
 # Generated datasets
 datasets/
 
+# Test output
+tests/output/
+
 # Model checkpoints
 checkpoints/
 models/

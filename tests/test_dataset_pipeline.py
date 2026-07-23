@@ -1,47 +1,63 @@
 from dataset.writer import DatasetWriter
 from pipeline.dataset_pipeline import DatasetPipeline
+from pipeline.quality_filter import QualityFilter
 
-accepted = DatasetWriter(
-    filename="accepted.jsonl"
-)
 
-rejected = DatasetWriter(
-    filename="rejected.jsonl"
-)
+def test_dataset_pipeline():
+    """
+    Verify that the complete dataset pipeline
+    processes, evaluates, filters, and writes
+    a valid document.
+    """
 
-pipeline = DatasetPipeline(
-    accepted,
-    rejected,
-)
+    quality_filter = QualityFilter()
 
-html = """
-<html>
-<body>
+    accepted = DatasetWriter(
+        output_dir="tests/output",
+        filename="accepted.jsonl",
+    )
 
-<article>
+    rejected = DatasetWriter(
+        output_dir="tests/output",
+        filename="rejected.jsonl",
+    )
 
-<h1>FastAPI Tutorial</h1>
+    pipeline = DatasetPipeline(
+        accepted,
+        rejected,
+        quality_filter,
+    )
 
-<p>
-""" + ("FastAPI is awesome. " * 200) + """
+    html = """
+    <html>
+    <body>
 
-</p>
-</article>
-</body>
-</html>
-"""
+    <article>
 
-document = pipeline.process(
-    "https://example.com",
-    html,
-)
+    <h1>FastAPI Tutorial</h1>
 
-print(document["quality"])
+    <p>
+    """ + ("FastAPI is awesome. " * 200) + """
 
-print(
-    accepted.get_document_count()
-)
+    </p>
 
-print(
-    rejected.get_document_count()
-)
+    </article>
+
+    </body>
+    </html>
+    """
+
+    document = pipeline.process(
+        "https://example.com",
+        html,
+    )
+
+    assert document["quality"]["passed"] is True
+
+    assert document["policy"]["accepted"] is True
+
+    assert accepted.get_document_count() == 1
+
+    assert rejected.get_document_count() == 0
+
+    assert accepted.filepath.exists()
